@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useEffect} from "react";
 import {
   Card,
   CardContent,
@@ -11,11 +11,50 @@ import Navbar from "./Navbar";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import { styled } from "@mui/material/styles";
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
+import axios from 'axios'
+
 
 function LightControlCard() {
   const [toggleState, setToggleState] = React.useState(false);
   const [intensity, setIntensity] = React.useState(50);
   const [temperature, setTemperature] = React.useState(50);
+  const [data, setData] = React.useState(null);
+
+  useEffect(() => {
+    // This block will be executed whenever intensity or temperature changes
+    axios.post('http://localhost:5002/setUpVal', {
+      intensity: intensity,
+      temperature: temperature,
+    })
+    .then(response => {
+      console.log(response.data); // Assuming the server sends back a success message
+    })
+    .catch(error => {
+      console.error(error);
+    });
+  }, [intensity, temperature]); // The effect depends on intensity and temperature
+
+  useEffect(() => {
+    const socket = new WebSocket('wss://localhost:5002/'); // Replace with your server URL
+
+    // websocket.onopen = () => {
+    //   console.log('connected');
+    // }
+
+    socket.addEventListener('message', (event) => {
+      const newData = JSON.parse(event.data);
+      setData(newData);
+
+      // You can customize this part to show an alert or update your UI as needed
+      alert(`New data received - Intensity: ${newData.intensity}, Temperature: ${newData.temperature}`);
+    });
+
+    return () => {
+      socket.close();
+    };
+  }, []);
+
+
 
   const handleToggleChange = (event) => {
     console.log(event.target.checked);
@@ -29,7 +68,7 @@ function LightControlCard() {
 
   const valueTemp = (value) => {
     setTemperature(value);
-    console.log(temperature);
+  console.log(value); // Use the argument directly, not the state variable
   };
 
   const IOSSwitch = styled((props) => (
