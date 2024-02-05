@@ -1,4 +1,4 @@
-import React,{useEffect} from "react";
+import React,{useEffect,useState} from "react";
 import {
   Card,
   CardContent,
@@ -11,14 +11,18 @@ import Navbar from "./Navbar";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import { styled } from "@mui/material/styles";
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
+import { ToastContainer, toast } from 'react-toastify';
 import axios from 'axios'
-
+import 'react-toastify/dist/ReactToastify.css';
 
 function LightControlCard() {
   const [toggleState, setToggleState] = React.useState(false);
   const [intensity, setIntensity] = React.useState(50);
   const [temperature, setTemperature] = React.useState(50);
   const [data, setData] = React.useState(null);
+  const [socket, setSocket] = React.useState(null);
+  const [userInput, setUserInput] = useState(0);
+  const [notificationId, setNotificationId] = useState(null);
 
   useEffect(() => {
     // This block will be executed whenever intensity or temperature changes
@@ -34,28 +38,94 @@ function LightControlCard() {
     });
   }, [intensity, temperature]); // The effect depends on intensity and temperature
 
+ 
+
   useEffect(() => {
-    const socket = new WebSocket('wss://localhost:5002/'); // Replace with your server URL
+    const newSocket = new WebSocket('ws://localhost:5002'); // Replace with your server URL
 
-    // websocket.onopen = () => {
-    //   console.log('connected');
-    // }
+    newSocket.addEventListener('message', (event) => {
+      const data = JSON.parse(event.data);
 
-    socket.addEventListener('message', (event) => {
-      const newData = JSON.parse(event.data);
-      setData(newData);
-
-      // You can customize this part to show an alert or update your UI as needed
-      alert(`New data received - Intensity: ${newData.intensity}, Temperature: ${newData.temperature}`);
+      
+       // Check the type of alert and show corresponding toast
+       if (data.alertType === 'promptNumber') {
+        showPromptNumberToast(data);
+      } else if (data.alertType === 'success') {
+        showSuccessToast(data);
+      } else if (data.alertType === 'failure') {
+        showFailureToast(data);
+      }
     });
 
+   
+    setSocket(newSocket);
+
     return () => {
-      socket.close();
+      newSocket.close();
     };
   }, []);
+const showPromptNumberToast = (data) => {
+   // Display a notification with an input field
+   const notification = toast.info(
+    <div>
+      <p>{`Received Notification: ${data.message}`}</p>
+      <input
+        type="number"
+        placeholder="Enter a number"
+        onChange={(e) => setUserInput(e.target.value)}
+        onKeyDown={handleInputKeyDown}
+      />
+    </div>,
+    {
+      position: 'top-right',
+      autoClose: 15000, // Auto-close the notification after 15 seconds
+    }
+  );
+
+  // Save the notification ID to close it later
+  setNotificationId(notification);
+  };
+
+  const showSuccessToast = (data) => {
+    toast.success(`Success: ${data.message}`, {
+      position: 'top-right',
+      autoClose: 5000, // Auto-close the success toast after 5 seconds
+    });
+  };
+
+  const showFailureToast = (data) => {
+    toast.error(`Failure: ${data.message}`, {
+      position: 'top-right',
+      autoClose: 5000, // Auto-close the failure toast after 5 seconds
+    });
+  };
 
 
+  const handleInputKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      // When "Enter" key is pressed, send the user's input back to the backend
+      console.log("user:", userInput);
+      setUserInput((prevUserInput) => {
+        handleNotificationInteraction(prevUserInput);
+      //  he input field after sending
+      });
+      toast.dismiss(notificationId);
+    }
+  };
 
+  const handleNotificationInteraction = (number) => {
+    // Send the user's input back to the backend
+    console.log("num:",parseInt(number));
+    axios.post('http://localhost:5002/setUnicast', {
+      unicastAddr: parseInt(number)
+    })
+    .then(response => {
+      console.log(response.data); // Assuming the server sends back a success message
+    })
+    .catch(error => {
+      console.error(error);
+    });
+  };
   const handleToggleChange = (event) => {
     console.log(event.target.checked);
     setToggleState(event.target.checked);
@@ -199,6 +269,8 @@ function LightControlCard() {
           />
         </CardContent>
       </Card>
+
+      <ToastContainer />
     </>
   );
 }
