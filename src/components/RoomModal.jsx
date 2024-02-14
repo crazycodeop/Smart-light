@@ -12,11 +12,18 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import image from '../assets/light-room.jpg';
 import Divider from '@mui/material/Divider';
+import { useNavigate } from 'react-router';
 
 export default function RoomModal() {
   const [open, setOpen] = React.useState(false);
   const [roomName, setRoomName] = React.useState('');
   const [cards, setCards] = React.useState([]);
+
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    navigate('/configuration');
+  };
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -73,6 +80,7 @@ export default function RoomModal() {
         {cards.map((card) => (
           <Grid item key={card.id} xs={12} sm={6} md={6} lg={6}>
             <Card 
+              onClick={handleCardClick}
             sx={{
                 cursor: 'pointer',
                 width: '200px',
