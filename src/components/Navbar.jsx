@@ -14,6 +14,33 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
 import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
+import {
+  SignedIn,
+  SignedOut,
+  UserButton,
+  useUser,
+  useClerk,
+} from "@clerk/clerk-react";
+
+function SignUpButton() {
+  const clerk = useClerk();
+
+  return (
+    <button className="sign-up-btn" onClick={() => clerk.openSignUp({})}>
+      Sign up
+    </button>
+  );
+}
+
+function SignInButton() {
+  const clerk = useClerk();
+
+  return (
+    <button className="sign-in-btn" onClick={() => clerk.openSignIn({})}>
+      Sign in
+    </button>
+  );
+}
 
 const drawerWidth = 240;
 const navItems = ["Home", "Profile", "Configuration", "Policy"];
@@ -21,6 +48,7 @@ const navItems = ["Home", "Profile", "Configuration", "Policy"];
 function Navbar(props) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const { firstName, signedIn } = useUser();
 
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
@@ -49,10 +77,8 @@ function Navbar(props) {
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
-      <AppBar component="nav"
-      sx={{ boxShadow: "none" }}
-      >
-        <Toolbar>
+      <AppBar component="nav" sx={{ boxShadow: "none" }}>
+        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -62,25 +88,38 @@ function Navbar(props) {
           >
             <MenuIcon />
           </IconButton>
-          <Box sx={{ display: { xs: "none", sm: "block" } }}>
-            {navItems.map((item) => (
-              <Button key={item} sx={{ color: "white" }}>
-                <Link
-                  href={`/${item.toLowerCase()}`}
-                  color="inherit"
-                  sx={{
-                    color: "white",
-                    textDecoration: "none",
-                    "&:hover": {
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Box
+              sx={{
+                display: { xs: "none", sm: "flex" },
+                alignItems: "center",
+                justifyContent: "flex-end",
+              }}
+            >
+              {navItems.map((item) => (
+                <Button key={item} sx={{ color: "white" }}>
+                  <Link
+                    href={`/${item.toLowerCase()}`}
+                    color="inherit"
+                    sx={{
+                      color: "white",
                       textDecoration: "none",
-                      color: "red",
-                    },
-                  }}
-                >
-                  {item}
-                </Link>
-              </Button>
-            ))}
+                      "&:hover": {
+                        textDecoration: "none",
+                        color: "red",
+                      },
+                    }}
+                  >
+                    {item}
+                  </Link>
+                </Button>
+              ))}
+            </Box>
+            <SignedIn>
+              <Box sx={{ ml: 1 }}>
+                <UserButton afterSignOutUrl="/" />
+              </Box>
+            </SignedIn>
           </Box>
         </Toolbar>
       </AppBar>

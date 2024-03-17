@@ -51,7 +51,7 @@ export default function RoomModal() {
     <>
       <Button
         variant="outlined"
-        sx={{ mt: 0 }}
+        sx={{ mt: 0, ml: 4}}
         startIcon={<AddHomeIcon />}
         onClick={handleClickOpen}
       >
@@ -85,6 +85,7 @@ export default function RoomModal() {
                 cursor: 'pointer',
                 width: '200px',
                 height: 'auto',
+                ml: 4,
                 boxShadow: 'none',
                 borderRadius: 2,
                 borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
