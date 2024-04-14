@@ -6,6 +6,7 @@ import {
   Switch,
   Slider,
   ListItemIcon,
+  Box,
 } from "@mui/material";
 import Navbar from "./Navbar";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -16,6 +17,7 @@ import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import BigSlider from "./BigSlider";
 import EditableCard from "./EditableCard";
+import Scanner from "./Scanner";
 function LightControlCard() {
   const [firsttoggleState, setfirstToggleState] = React.useState(false);
   const [sectoggleState, setsecToggleState] = React.useState(false);
@@ -278,10 +280,13 @@ function LightControlCard() {
   return (
     <>
       <Navbar />
-      <BigSlider
-        grpSliderIntensity={grpSliderIntensity}
-        grpIntensity={grpIntensity}
-      />
+      <Box display="flex" alignItems="center">
+        <BigSlider
+          grpSliderIntensity={grpSliderIntensity}
+          grpIntensity={grpIntensity}
+        />
+        <Scanner />
+      </Box>
       <div style={{ display: "flex", flexWrap: "wrap" }}>
         <Card
           sx={{

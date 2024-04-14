@@ -20,7 +20,7 @@ const BigSliderContainer = styled(Box)({
 
 const BigSlider = (props) => {
   return (
-    <BigSliderContainer sx={{ ml: 4 }}>
+    <BigSliderContainer sx={{ ml: 4, width: '50%' }}>
       <Typography variant="h4">Room Control</Typography>
       <CustomSlider
         defaultValue={props.grpIntensity}
